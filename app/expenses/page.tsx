@@ -1,3 +1,5 @@
+import ExpensesPage from './ExpensesPage'
+
 export default function Page() {
-  return <h1>Expenses</h1>
+  return <ExpensesPage />
 }

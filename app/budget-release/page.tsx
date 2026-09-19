@@ -1,3 +1,5 @@
+import BudgetReleasePage from './BudgetReleasePage'
+
 export default function Page() {
-  return <h1>budget-release</h1>
+  return <BudgetReleasePage />
 }
