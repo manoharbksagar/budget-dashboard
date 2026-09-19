@@ -1,3 +1,5 @@
+import BranchesPage from './BranchesPage'
+
 export default function Page() {
-  return <h1>Branches</h1>
+  return <BranchesPage />
 }
