@@ -67,9 +67,10 @@ export default function AppNavigation() {
 
     async function loadProfile() {
       try {
-        const {
-          data: { claims },
-        } = await supabase.auth.getClaims()
+        const { data: claimsData } =
+          await supabase.auth.getClaims()
+
+        const claims = claimsData?.claims
 
         if (!mounted || !claims) {
           setProfile(null)
