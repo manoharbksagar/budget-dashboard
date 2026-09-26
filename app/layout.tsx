@@ -1,21 +1,18 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Noto_Sans_Kannada } from "next/font/google";
 import "./globals.css";
 import AppNavigation from "@/components/navigation/AppNavigation";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
+const kannada = Noto_Sans_Kannada({
+  variable: "--font-kannada",
+  subsets: ["kannada"],
+  weight: ["300", "400", "500", "600", "700", "800"],
 });
 
 export const metadata: Metadata = {
-  title: "Budget & Expense Dashboard",
-  description: "Budget, expense and reporting application",
+  title: "ಅನುದಾನ ಬಿಡುಗಡೆ ಮತ್ತು ವೆಚ್ಚ ನಿರ್ವಹಣಾ ವ್ಯವಸ್ಥೆ",
+  description:
+    "Budget, expense and reporting application for district administration",
 };
 
 export default function RootLayout({
@@ -23,10 +20,10 @@ export default function RootLayout({
 }: LayoutProps<"/">) {
   return (
     <html
-      lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      lang="kn"
+      className={`${kannada.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col bg-slate-50">
+      <body className="min-h-full flex flex-col bg-slate-50 text-slate-800">
         <AppNavigation />
         <div className="flex-1">{children}</div>
       </body>
