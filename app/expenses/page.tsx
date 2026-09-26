@@ -197,9 +197,10 @@ export default function ExpensesPage() {
   const pageSize = 10
 
   async function loadUserRole() {
-    const {
-      data: { claims },
-    } = await supabase.auth.getClaims()
+    const { data: claimsData } =
+      await supabase.auth.getClaims()
+
+    const claims = claimsData?.claims
 
     if (!claims?.sub) {
       setUserRole(null)
