@@ -1,6 +1,18 @@
 'use client'
 
 import Link from 'next/link'
+import {
+  CalendarDays,
+  FileBarChart2,
+  FileSpreadsheet,
+  HandCoins,
+  Landmark,
+  LayoutDashboard,
+  LogOut,
+  Receipt,
+  ShieldCheck,
+  UserCircle,
+} from 'lucide-react'
 import { usePathname } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
@@ -16,38 +28,46 @@ type Profile = {
 const adminLinks = [
   {
     href: '/dashboard',
-    label: 'Dashboard',
+    label: 'ಡ್ಯಾಶ್‌ಬೋರ್ಡ್',
+    icon: LayoutDashboard,
   },
   {
     href: '/expenses',
-    label: 'Expense Entry',
+    label: 'ವೆಚ್ಚ ನಮೂದು',
+    icon: Receipt,
   },
   {
     href: '/expenses/import',
-    label: 'Expense Import',
+    label: 'ವೆಚ್ಚ ಆಮದು',
+    icon: FileSpreadsheet,
   },
   {
     href: '/budget-release/import',
-    label: 'Budget Import',
+    label: 'ಅನುದಾನ ಆಮದು',
+    icon: HandCoins,
   },
   {
     href: '/reports',
-    label: 'Reports',
+    label: 'ವರದಿಗಳು',
+    icon: FileBarChart2,
   },
 ]
 
 const userLinks = [
   {
     href: '/dashboard',
-    label: 'Dashboard',
+    label: 'ಡ್ಯಾಶ್‌ಬೋರ್ಡ್',
+    icon: LayoutDashboard,
   },
   {
     href: '/expenses',
-    label: 'Expense Entry',
+    label: 'ವೆಚ್ಚ ನಮೂದು',
+    icon: Receipt,
   },
   {
     href: '/reports',
-    label: 'Reports',
+    label: 'ವರದಿಗಳು',
+    icon: FileBarChart2,
   },
 ]
 
@@ -89,9 +109,7 @@ export default function AppNavigation() {
           error,
         } = await supabase
           .from('profiles')
-          .select(
-            'role,full_name,email'
-          )
+          .select('role,full_name,email')
           .eq('id', userId)
           .maybeSingle()
 
@@ -136,17 +154,10 @@ export default function AppNavigation() {
     }
   }, [])
 
-  /*
-   * Do not show application navigation on login.
-   */
   if (pathname === '/login') {
     return null
   }
 
-  /*
-   * Don't render an empty authenticated navigation
-   * while the session/profile is being resolved.
-   */
   if (loading && !profile) {
     return null
   }
@@ -165,6 +176,15 @@ export default function AppNavigation() {
     profile.email ||
     'User'
 
+  const today = new Intl.DateTimeFormat(
+    'kn-IN',
+    {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric',
+    }
+  ).format(new Date())
+
   async function handleSignOut() {
     setSigningOut(true)
 
@@ -177,9 +197,7 @@ export default function AppNavigation() {
         throw error
       }
 
-      window.location.replace(
-        '/login'
-      )
+      window.location.replace('/login')
     } catch (error: any) {
       console.error(
         'Sign out error:',
@@ -196,77 +214,106 @@ export default function AppNavigation() {
   }
 
   return (
-    <header className="sticky top-0 z-40 border-b bg-white shadow-sm">
-      <div className="max-w-[1500px] mx-auto px-4 md:px-6">
-        <div className="min-h-16 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3 py-3">
-          <div className="flex items-center justify-between gap-4">
-            <Link
-              href="/dashboard"
-              className="font-bold text-lg text-slate-800 whitespace-nowrap"
-            >
-              Budget & Expense
-            </Link>
-
-            <span
-              className={`hidden sm:inline-flex px-2.5 py-1 rounded-full text-xs font-semibold ${
-                profile.role === 'admin'
-                  ? 'bg-blue-50 text-blue-700'
-                  : 'bg-slate-100 text-slate-700'
-              }`}
-            >
-              {profile.role.toUpperCase()}
-            </span>
-          </div>
-
-          <nav className="flex items-center gap-1 overflow-x-auto">
-            {links.map((link) => {
-              const active =
-                pathname === link.href ||
-                pathname.startsWith(
-                  `${link.href}/`
-                )
-
-              return (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  className={`px-3 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition ${
-                    active
-                      ? 'bg-blue-800 text-white'
-                      : 'text-slate-700 hover:bg-slate-100'
-                  }`}
-                >
-                  {link.label}
-                </Link>
-              )
-            })}
-          </nav>
-
-          <div className="flex items-center gap-3">
-            <div className="hidden md:block text-right">
-              <p className="text-sm font-semibold text-slate-800">
-                {displayName}
-              </p>
-
-              {profile.email &&
-                profile.full_name && (
-                  <p className="text-xs text-slate-500">
-                    {profile.email}
-                  </p>
-                )}
+    <header className="sticky top-0 z-40 bg-[#1F4E79] text-white border-b-4 border-amber-500 shadow-md no-print">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+        <div className="flex flex-col xl:flex-row xl:items-center xl:justify-between gap-3">
+          <div className="flex items-start gap-3 min-w-0">
+            <div className="shrink-0 bg-white/10 p-2.5 rounded-xl border border-white/20 shadow-inner">
+              <Landmark
+                className="w-7 h-7 text-amber-400"
+                strokeWidth={2}
+              />
             </div>
 
-            <button
-              type="button"
-              onClick={handleSignOut}
-              disabled={signingOut}
-              className="border border-slate-300 px-3 py-2 rounded-lg text-sm hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
-            >
-              {signingOut
-                ? 'Signing out...'
-                : 'Sign Out'}
-            </button>
+            <div className="min-w-0">
+              <h1 className="text-sm sm:text-base font-bold leading-snug flex flex-wrap items-center gap-2">
+                ಉಪ ನಿರ್ದೇಶಕರ ಕಛೇರಿ,
+                ಮಹಿಳಾ ಮತ್ತು ಮಕ್ಕಳ ಅಭಿವೃದ್ಧಿ ಇಲಾಖೆ
+                <span className="text-[11px] font-semibold bg-amber-500 text-slate-900 px-2 py-0.5 rounded-md whitespace-nowrap">
+                  ಬೆಂಗಳೂರು ಗ್ರಾಮಾಂತರ ಜಿಲ್ಲೆ
+                </span>
+              </h1>
+
+              <p className="text-[11px] sm:text-xs text-slate-200 font-medium mt-0.5">
+                ಅನುದಾನ ಬಿಡುಗಡೆ ಹಾಗೂ ವೆಚ್ಚ ನಿರ್ವಹಣಾ ತಂತ್ರಾಂಶ
+                <span className="hidden sm:inline">
+                  {' '}· Budget & Expense Management System
+                </span>
+              </p>
+            </div>
           </div>
+
+          <div className="flex flex-col sm:flex-row xl:items-center gap-2">
+            <div className="flex items-center gap-2">
+              <span className="bg-[#163858] px-3 py-1.5 rounded-lg border border-[#1d4ed8] flex items-center gap-2 text-amber-300 text-xs font-medium whitespace-nowrap">
+                <CalendarDays className="w-3.5 h-3.5" />
+                {today}
+              </span>
+
+              <span className="inline-flex items-center gap-1.5 bg-white/10 px-2.5 py-1.5 rounded-lg border border-white/20 text-xs font-semibold">
+                {profile.role === 'admin' ? (
+                  <ShieldCheck className="w-3.5 h-3.5 text-amber-300" />
+                ) : (
+                  <UserCircle className="w-3.5 h-3.5 text-slate-200" />
+                )}
+                {profile.role === 'admin' ? 'ADMIN' : 'USER'}
+              </span>
+            </div>
+
+            <div className="flex items-center gap-1.5 overflow-x-auto pb-0.5">
+              <nav className="flex items-center gap-1">
+                {links.map((link) => {
+                  const active =
+                    pathname === link.href ||
+                    pathname.startsWith(
+                      `${link.href}/`
+                    )
+
+                  const Icon = link.icon
+
+                  return (
+                    <Link
+                      key={link.href}
+                      href={link.href}
+                      className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs sm:text-sm font-semibold whitespace-nowrap transition border ${
+                        active
+                          ? 'bg-white text-[#1F4E79] border-white shadow-sm'
+                          : 'bg-white/5 text-white border-white/10 hover:bg-white/10'
+                      }`}
+                    >
+                      <Icon className="w-3.5 h-3.5 shrink-0" />
+                      {link.label}
+                    </Link>
+                  )
+                })}
+              </nav>
+
+              <button
+                type="button"
+                onClick={handleSignOut}
+                disabled={signingOut}
+                className="flex items-center gap-1.5 bg-rose-600 hover:bg-rose-700 text-white px-3 py-2 rounded-lg text-xs sm:text-sm font-semibold whitespace-nowrap shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <LogOut className="w-3.5 h-3.5" />
+                {signingOut
+                  ? 'ನಿರ್ಗಮಿಸುತ್ತಿದೆ...'
+                  : 'ನಿರ್ಗಮನ'}
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-2 hidden lg:flex items-center justify-between gap-4">
+          <p className="text-[11px] text-slate-300">
+            {displayName}
+            {profile.email && profile.full_name
+              ? ` · ${profile.email}`
+              : ''}
+          </p>
+
+          <p className="text-[10px] uppercase tracking-[0.18em] text-slate-300/80">
+            Authorized Access
+          </p>
         </div>
       </div>
     </header>
