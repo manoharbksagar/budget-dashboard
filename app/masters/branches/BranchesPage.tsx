@@ -11,9 +11,9 @@ type Taluk = {
 type Branch = {
   id: string
   name: string
-  taluks: {
+  taluks?: {
     name: string
-  }
+  } | null
 }
 
 export default function BranchesPage() {
@@ -46,7 +46,13 @@ export default function BranchesPage() {
       `)
       .order('name')
 
-    setBranches((data as Branch[]) || [])
+    const formattedBranches: Branch[] = (data || []).map((item) => ({
+      id: item.id,
+      name: item.name,
+      taluks: Array.isArray(item.taluks) ? item.taluks[0] : item.taluks,
+    }))
+
+    setBranches(formattedBranches)
   }
 
   async function addBranch() {
