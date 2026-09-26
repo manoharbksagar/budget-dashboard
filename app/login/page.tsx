@@ -17,9 +17,10 @@ export default function LoginPage() {
     let mounted = true
 
     async function checkExistingSession() {
-      const {
-        data: { claims },
-      } = await supabase.auth.getClaims()
+      const { data: claimsData } =
+        await supabase.auth.getClaims()
+
+      const claims = claimsData?.claims
 
       if (
         mounted &&
