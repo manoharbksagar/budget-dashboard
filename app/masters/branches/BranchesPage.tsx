@@ -13,7 +13,7 @@ type Branch = {
   name: string
   taluks: {
     name: string
-  }
+  }[]
 }
 
 export default function BranchesPage() {
@@ -143,7 +143,7 @@ export default function BranchesPage() {
           {branches.map((branch) => (
             <tr key={branch.id}>
               <td className="border p-2">
-                {branch.taluks?.name}
+                {branch.taluks?.[0]?.name}
               </td>
 
               <td className="border p-2">

@@ -1,92 +1,197 @@
 'use client'
 
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { FormEvent, useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 
 export default function LoginPage() {
-  const router = useRouter()
   const supabase = createClient()
 
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [error, setError] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
+  const [errorMessage, setErrorMessage] =
+    useState('')
 
-  async function handleLogin(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault()
+  useEffect(() => {
+    let mounted = true
 
-    setLoading(true)
-    setError('')
+    async function checkExistingSession() {
+      const {
+        data: { claims },
+      } = await supabase.auth.getClaims()
 
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    })
+      if (
+        mounted &&
+        claims
+      ) {
+        window.location.replace(
+          '/dashboard'
+        )
+      }
+    }
 
-    setLoading(false)
+    checkExistingSession()
 
-    if (error) {
-      setError(error.message)
+    return () => {
+      mounted = false
+    }
+  }, [])
+
+  async function handleSubmit(
+    event: FormEvent<HTMLFormElement>
+  ) {
+    event.preventDefault()
+
+    setErrorMessage('')
+
+    if (!email.trim()) {
+      setErrorMessage(
+        'Enter your email address.'
+      )
       return
     }
 
-    router.push('/dashboard')
-    router.refresh()
+    if (!password) {
+      setErrorMessage(
+        'Enter your password.'
+      )
+      return
+    }
+
+    setLoading(true)
+
+    try {
+      const {
+        error,
+      } = await supabase.auth.signInWithPassword({
+        email: email.trim(),
+        password,
+      })
+
+      if (error) {
+        throw error
+      }
+
+      /*
+       * Full navigation lets Next.js Proxy receive
+       * the newly established Supabase auth cookies.
+       */
+      window.location.replace(
+        '/dashboard'
+      )
+    } catch (error: any) {
+      setErrorMessage(
+        error?.message ||
+          'Unable to sign in.'
+      )
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
-    <main className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="w-full max-w-md bg-white rounded-lg shadow-md p-6">
-        <h1 className="text-3xl font-bold text-center mb-6">
-          Budget Dashboard
-        </h1>
+    <main className="min-h-screen bg-slate-50 flex items-center justify-center p-6">
+      <div className="w-full max-w-md">
+        <div className="bg-white border rounded-2xl shadow-sm p-8">
+          <div className="mb-8">
+            <h1 className="text-3xl font-bold text-slate-800">
+              Budget & Expense
+            </h1>
 
-        <form onSubmit={handleLogin} className="space-y-4">
-          <div>
-            <label className="block mb-1 font-medium">
-              Email
-            </label>
-
-            <input
-              type="email"
-              className="w-full border rounded-md p-3"
-              placeholder="admin@budgetdashboard.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
+            <p className="text-slate-500 mt-1">
+              Sign in to continue
+            </p>
           </div>
 
-          <div>
-            <label className="block mb-1 font-medium">
-              Password
-            </label>
-
-            <input
-              type="password"
-              className="w-full border rounded-md p-3"
-              placeholder="Enter password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
-          </div>
-
-          {error && (
-            <div className="text-red-600 text-sm">
-              {error}
+          {errorMessage && (
+            <div className="border border-red-200 bg-red-50 text-red-700 rounded-lg p-3 mb-5 text-sm">
+              {errorMessage}
             </div>
           )}
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-black text-white py-3 rounded-md hover:bg-gray-800 disabled:opacity-50"
+          <form
+            onSubmit={handleSubmit}
+            className="space-y-5"
           >
-            {loading ? 'Signing In...' : 'Login'}
-          </button>
-        </form>
+            <div>
+              <label className="block text-sm font-semibold text-slate-700 mb-2">
+                Email
+              </label>
+
+              <input
+                type="email"
+                autoComplete="email"
+                value={email}
+                onChange={(e) =>
+                  setEmail(
+                    e.target.value
+                  )
+                }
+                placeholder="name@example.com"
+                disabled={loading}
+                className="border border-slate-300 p-3 rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-600"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-semibold text-slate-700 mb-2">
+                Password
+              </label>
+
+              <div className="relative">
+                <input
+                  type={
+                    showPassword
+                      ? 'text'
+                      : 'password'
+                  }
+                  autoComplete="current-password"
+                  value={password}
+                  onChange={(e) =>
+                    setPassword(
+                      e.target.value
+                    )
+                  }
+                  placeholder="Enter password"
+                  disabled={loading}
+                  className="border border-slate-300 p-3 pr-20 rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-600"
+                />
+
+                <button
+                  type="button"
+                  onClick={() =>
+                    setShowPassword(
+                      (value) =>
+                        !value
+                    )
+                  }
+                  disabled={loading}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 text-sm text-blue-700 px-2 py-1"
+                >
+                  {showPassword
+                    ? 'Hide'
+                    : 'Show'}
+                </button>
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full bg-blue-800 hover:bg-blue-900 text-white px-4 py-3 rounded-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {loading
+                ? 'Signing in...'
+                : 'Sign In'}
+            </button>
+          </form>
+
+          <p className="text-xs text-slate-500 mt-6">
+            Access is managed through your Supabase
+            authentication users.
+          </p>
+        </div>
       </div>
     </main>
   )
